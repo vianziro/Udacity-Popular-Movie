@@ -37,22 +37,23 @@ public class MainActivityFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         Bundle bundle=getArguments();
 
-        movieDetailsAdapter = new MovieDAdapter(getActivity(), movieList);
 
+        GridView gridView = (GridView) rootView.findViewById(R.id.Movie_grid);
         if(bundle!=null && savedInstanceState==null){
             movieList = bundle.getParcelableArrayList("data");
             //Log.d("tes", movieList.toString());
-            for(MovieDetails data : movieList){
+            /*for(MovieDetails data : movieList){
                 movieDetailsAdapter.add(data);
                 movieDetailsAdapter.notifyDataSetChanged();
-            }
+            }*/
+            movieDetailsAdapter = new MovieDAdapter(getActivity(), movieList);
+            gridView.setAdapter(movieDetailsAdapter);
 
         }
 
         // Get a reference to the ListView, and attach this adapter to it.
 
-        GridView gridView = (GridView) rootView.findViewById(R.id.Movie_grid);
-        gridView.setAdapter(movieDetailsAdapter);
+
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
