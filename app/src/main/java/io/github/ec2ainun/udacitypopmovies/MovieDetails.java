@@ -17,7 +17,6 @@ public class MovieDetails {
         this.poster_path = poster_path;
         this.vote_average = vote_average;
         this.release_date = release_date;
-
     }
 
 }

@@ -25,16 +25,16 @@ import io.github.ec2ainun.udacitypopmovies.utilities.NetworkUtils;
 public class MainActivity extends AppCompatActivity {
 
     String TAG = "error";
-    private MovieDetailsAdapter movieDetailsAdapter;
+    /*private MovieDetailsAdapter movieDetailsAdapter;
     private ArrayList<MovieDetails> movieList;
-    MovieDetails[] movieDetailses;
+    MovieDetails[] movieDetailses;*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_main);
-        movieList = new  ArrayList<MovieDetails>();
-        movieDetailsAdapter = new MovieDetailsAdapter(this, movieList);
+        setContentView(R.layout.activity_main);
+        /*movieList = new  ArrayList<MovieDetails>(Arrays.asList(movieDetailses));
+        movieDetailsAdapter = new MovieDetailsAdapter(this, movieList);*/
     }
 
     private void getDataMovie(String data) {
@@ -97,12 +97,12 @@ public class MainActivity extends AppCompatActivity {
             String vote_average = hasil.getString("vote_average");
             String release_date = hasil.getString("release_date");
             MovieDetails movie = new MovieDetails(title, overview, poster_path, vote_average, release_date);
-            movieList.add(movie);
+            /*movieList.add(movie);*/
 
 
         }
 
-        movieDetailsAdapter.notifyDataSetChanged();
+        /*movieDetailsAdapter.notifyDataSetChanged();*/
 
 
 
