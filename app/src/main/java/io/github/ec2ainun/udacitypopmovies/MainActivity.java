@@ -28,11 +28,14 @@ public class MainActivity extends AppCompatActivity {
     /*private MovieDetailsAdapter movieDetailsAdapter;
     private ArrayList<MovieDetails> movieList;
     MovieDetails[] movieDetailses;*/
+    private ArrayList<MovieDetails> movieList = new ArrayList<MovieDetails>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getDataMovie("popular");
         setContentView(R.layout.activity_main);
+
         /*movieList = new  ArrayList<MovieDetails>(Arrays.asList(movieDetailses));
         movieDetailsAdapter = new MovieDetailsAdapter(this, movieList);*/
     }
@@ -46,8 +49,8 @@ public class MainActivity extends AppCompatActivity {
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(TAG, "Failed to load meta-data, NameNotFound: " + e.getMessage());
         }
-        URL githubSearchUrl = NetworkUtils.buildUrl(data, myApiKey);
-        new MovieQueryTask().execute(githubSearchUrl);
+        URL Url = NetworkUtils.buildUrl(data, myApiKey);
+        new MovieQueryTask().execute(Url);
     }
 
     public class MovieQueryTask extends AsyncTask<URL, Void, String> {
@@ -73,13 +76,11 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String SearchResults) {
             if (SearchResults != null && !SearchResults.equals("")) {
-                // COMPLETED (17) Call showJsonDataView if we have valid, non-null results
                 try {
                     showJsonDataView(SearchResults);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                //tes.setText(SearchResults);
             } else {
 
             }
@@ -97,10 +98,13 @@ public class MainActivity extends AppCompatActivity {
             String vote_average = hasil.getString("vote_average");
             String release_date = hasil.getString("release_date");
             MovieDetails movie = new MovieDetails(title, overview, poster_path, vote_average, release_date);
-            /*movieList.add(movie);*/
-
-
+            movieList.add(movie);
         }
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("data", movieList);
+        // set Fragmentclass Arguments
+        MainActivityFragment send = new MainActivityFragment();
+        send.setArguments(bundle);
 
         /*movieDetailsAdapter.notifyDataSetChanged();*/
 

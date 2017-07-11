@@ -56,7 +56,8 @@ public class MovieDetailsAdapter extends ArrayAdapter<MovieDetails> {
 
         String BaseURL = "http://image.tmdb.org/t/p/w185/";
         ImageView iconView = (ImageView) convertView.findViewById(R.id.Movie_image);
-        Picasso.with(getContext()).load(BaseURL.concat(movieDetails.poster_path)).into(iconView);
+        String gambar  =BaseURL.concat(movieDetails.poster_path);
+        Picasso.with(getContext()).load(gambar).into(iconView);
 
         TextView title = (TextView) convertView.findViewById(R.id.Movie_title);
         title.setText(movieDetails.title);
