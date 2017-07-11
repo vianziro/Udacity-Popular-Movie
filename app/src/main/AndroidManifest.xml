@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.github.ec2ainun.udacitypopmovies">
+
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -17,9 +18,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="MY_API_KEY"
             android:value="@string/api_key" />
+
+        <activity android:name=".info"></activity>
     </application>
 
 </manifest>

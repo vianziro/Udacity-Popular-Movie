@@ -1,5 +1,7 @@
 package io.github.ec2ainun.udacitypopmovies;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
@@ -29,12 +31,15 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<MovieDetails> movieList;
     MovieDetails[] movieDetailses;*/
     private ArrayList<MovieDetails> movieList = new ArrayList<MovieDetails>();
+    private FragmentTransaction fragmentTransaction;
+    private FragmentManager fragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getDataMovie("popular");
         setContentView(R.layout.activity_main);
+        fragmentManager = this.getFragmentManager();
 
         /*movieList = new  ArrayList<MovieDetails>(Arrays.asList(movieDetailses));
         movieDetailsAdapter = new MovieDetailsAdapter(this, movieList);*/
@@ -105,6 +110,8 @@ public class MainActivity extends AppCompatActivity {
         // set Fragmentclass Arguments
         MainActivityFragment send = new MainActivityFragment();
         send.setArguments(bundle);
+        fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.commit();
 
         /*movieDetailsAdapter.notifyDataSetChanged();*/
 

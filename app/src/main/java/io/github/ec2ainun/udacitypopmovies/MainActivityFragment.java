@@ -1,11 +1,13 @@
 package io.github.ec2ainun.udacitypopmovies;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 import java.util.ArrayList;
@@ -46,7 +48,24 @@ public class MainActivityFragment extends Fragment {
 
         // Get a reference to the ListView, and attach this adapter to it.
         GridView gridView = (GridView) rootView.findViewById(R.id.Movie_grid);
+
         gridView.setAdapter(movieDetailsAdapter);
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                MovieDetails movie = movieDetailsAdapter.getItem(i);
+                Bundle data = new Bundle();
+                data.putString("title", movie.title);
+                data.putString("overview", movie.overview);
+                data.putString("poster_path", movie.poster_path);
+                data.putString("release_date", movie.release_date);
+                data.putString("vote_average", movie.vote_average);
+                Intent intent = new Intent(getActivity(), info.class);
+                intent.putExtras(data);
+                startActivity(intent);
+
+            }
+        });
 
         return rootView;
     }
