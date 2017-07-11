@@ -2,6 +2,7 @@ package io.github.ec2ainun.udacitypopmovies;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
@@ -11,6 +12,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -30,17 +33,18 @@ public class MainActivity extends AppCompatActivity {
     /*private MovieDetailsAdapter movieDetailsAdapter;
     private ArrayList<MovieDetails> movieList;
     MovieDetails[] movieDetailses;*/
-    private ArrayList<MovieDetails> movieList = new ArrayList<MovieDetails>();
-    private FragmentTransaction fragmentTransaction;
-    private FragmentManager fragmentManager;
+    /*private FragmentTransaction fragmentTransaction;
+    private FragmentManager fragmentManager;*/
+    private ArrayList<MovieDetails> movieList;
+    GridView gridView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.fragment_main);
+        gridView = (GridView)findViewById(R.id.Movie_grid);
         getDataMovie("popular");
-        setContentView(R.layout.activity_main);
-        fragmentManager = this.getFragmentManager();
-
+        //fragmentManager = this.getFragmentManager();
         /*movieList = new  ArrayList<MovieDetails>(Arrays.asList(movieDetailses));
         movieDetailsAdapter = new MovieDetailsAdapter(this, movieList);*/
     }
@@ -93,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
     private void showJsonDataView(String SearchResults) throws JSONException {
         JSONObject data = new JSONObject(SearchResults);
         JSONArray result = data.getJSONArray("results");
+        movieList = new ArrayList<MovieDetails>();
         for (int i = 0; i < result.length(); ++i) {
             JSONObject hasil = result.getJSONObject(i);
             String title = hasil.getString("title");
@@ -103,6 +108,26 @@ public class MainActivity extends AppCompatActivity {
             MovieDetails movie = new MovieDetails(title, overview, poster_path, vote_average, release_date);
             movieList.add(movie);
         }
+
+        final MovieDetailsAdapter movieDetailsAdapter = new MovieDetailsAdapter(this, movieList);
+        gridView.setAdapter(movieDetailsAdapter);
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                MovieDetails movie = movieDetailsAdapter.getItem(i);
+                Bundle data = new Bundle();
+                data.putString("title", movie.title);
+                data.putString("overview", movie.overview);
+                data.putString("poster_path", movie.poster_path);
+                data.putString("release_date", movie.release_date);
+                data.putString("vote_average", movie.vote_average);
+                Intent intent = new Intent(MainActivity.this, info.class);
+                intent.putExtras(data);
+                startActivity(intent);
+            }
+        });
+
+       /*//for fragment
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("data", movieList);
         // set Fragmentclass Arguments
@@ -113,27 +138,18 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
 
-        /*movieDetailsAdapter.notifyDataSetChanged();*/
-
-
-
+        *//*movieDetailsAdapter.notifyDataSetChanged();*//*
+*/
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_popular) {
             getDataMovie("popular");
             return true;
@@ -142,7 +158,6 @@ public class MainActivity extends AppCompatActivity {
             getDataMovie("top_rated");
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }

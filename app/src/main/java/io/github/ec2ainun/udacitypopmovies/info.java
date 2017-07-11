@@ -35,7 +35,7 @@ public class info extends AppCompatActivity {
 
         Picasso.with(this).load(images).into(poster);
         TVtitle.setText(title);
-        TVvote_average.setText(vote_average);
+        TVvote_average.setText("("+vote_average+")");
         TVrelease_date.setText(release_date);
         TVoverview.setText(overview);
 

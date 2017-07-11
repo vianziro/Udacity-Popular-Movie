@@ -36,8 +36,6 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         Bundle bundle=getArguments();
-
-
         GridView gridView = (GridView) rootView.findViewById(R.id.Movie_grid);
         if(bundle!=null && savedInstanceState==null){
             movieList = bundle.getParcelableArrayList("data");
@@ -48,27 +46,22 @@ public class MainActivityFragment extends Fragment {
             }*/
             movieDetailsAdapter = new MovieDAdapter(getActivity(), movieList);
             gridView.setAdapter(movieDetailsAdapter);
-
+            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    MovieDetails movie = movieDetailsAdapter.getItem(i);
+                    Bundle data = new Bundle();
+                    data.putString("title", movie.title);
+                    data.putString("overview", movie.overview);
+                    data.putString("poster_path", movie.poster_path);
+                    data.putString("release_date", movie.release_date);
+                    data.putString("vote_average", movie.vote_average);
+                    Intent intent = new Intent(getActivity(), info.class);
+                    intent.putExtras(data);
+                    startActivity(intent);
+                }
+            });
         }
-
-        // Get a reference to the ListView, and attach this adapter to it.
-
-
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                MovieDetails movie = movieDetailsAdapter.getItem(i);
-                Bundle data = new Bundle();
-                data.putString("title", movie.title);
-                data.putString("overview", movie.overview);
-                data.putString("poster_path", movie.poster_path);
-                data.putString("release_date", movie.release_date);
-                data.putString("vote_average", movie.vote_average);
-                Intent intent = new Intent(getActivity(), info.class);
-                intent.putExtras(data);
-                startActivity(intent);
-            }
-        });
 
         return rootView;
     }
