@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">UPop Movies</string>
+    <string name="popular">Sort by most popular</string>
+    <string name="rated">Sort by top rated</string>
+    <string name="api_key">30dc1d65ee9b9a7a9992a0e7f75dd3d3</string>
+
+</resources>
