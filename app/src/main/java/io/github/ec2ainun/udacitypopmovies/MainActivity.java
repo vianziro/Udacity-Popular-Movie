@@ -11,21 +11,30 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import io.github.ec2ainun.udacitypopmovies.utilities.NetworkUtils;
 
 public class MainActivity extends AppCompatActivity {
 
     String TAG = "error";
-    TextView tes;
+    private MovieDetailsAdapter movieDetailsAdapter;
+    private ArrayList<MovieDetails> movieList;
+    MovieDetails[] movieDetailses;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        tes = (TextView) findViewById(R.id.tes);
-
+        setContentView(R.layout.fragment_main);
+        movieList = new  ArrayList<MovieDetails>();
+        movieDetailsAdapter = new MovieDetailsAdapter(this, movieList);
     }
 
     private void getDataMovie(String data) {
@@ -52,25 +61,51 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(URL... params) {
             URL searchUrl = params[0];
-            String githubSearchResults = null;
+            String SearchResults = null;
             try {
-                githubSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
+                SearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return githubSearchResults;
+            return SearchResults;
         }
 
         @Override
-        protected void onPostExecute(String githubSearchResults) {
-            if (githubSearchResults != null && !githubSearchResults.equals("")) {
+        protected void onPostExecute(String SearchResults) {
+            if (SearchResults != null && !SearchResults.equals("")) {
                 // COMPLETED (17) Call showJsonDataView if we have valid, non-null results
-                //showJsonDataView();
-                tes.setText(githubSearchResults);
+                try {
+                    showJsonDataView(SearchResults);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                //tes.setText(SearchResults);
             } else {
 
             }
         }
+    }
+
+    private void showJsonDataView(String SearchResults) throws JSONException {
+        JSONObject data = new JSONObject(SearchResults);
+        JSONArray result = data.getJSONArray("results");
+        for (int i = 0; i < result.length(); ++i) {
+            JSONObject hasil = result.getJSONObject(i);
+            String title = hasil.getString("title");
+            String overview = hasil.getString("overview");
+            String poster_path = hasil.getString("poster_path");
+            String vote_average = hasil.getString("vote_average");
+            String release_date = hasil.getString("release_date");
+            MovieDetails movie = new MovieDetails(title, overview, poster_path, vote_average, release_date);
+            movieList.add(movie);
+
+
+        }
+
+        movieDetailsAdapter.notifyDataSetChanged();
+
+
+
     }
 
     @Override

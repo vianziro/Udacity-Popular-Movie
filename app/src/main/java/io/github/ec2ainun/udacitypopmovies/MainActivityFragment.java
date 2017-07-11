@@ -16,12 +16,12 @@ public class MainActivityFragment extends Fragment {
 
     private MovieDetailsAdapter movieDetailsAdapter;
 
-    MovieDetails[] movieDetailses = {
+    /*MovieDetails[] movieDetailses = {
             new MovieDetails("Cupcake", "1.5", R.drawable.cupcake),
             new MovieDetails("Donut", "1.6", R.drawable.donut),
             new MovieDetails("Eclair", "2.0-2.1", R.drawable.eclair),
             new MovieDetails("Froyo", "2.2-2.2.3", R.drawable.froyo)
-    };
+    };*/
 
     public MainActivityFragment() {
     }
@@ -31,10 +31,10 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        movieDetailsAdapter = new MovieDetailsAdapter(getActivity(), Arrays.asList(movieDetailses));
+        //movieDetailsAdapter = new MovieDetailsAdapter(getActivity(), Arrays.asList(movieDetailses));
 
         // Get a reference to the ListView, and attach this adapter to it.
-        GridView gridView = (GridView) rootView.findViewById(R.id.flavors_grid);
+        GridView gridView = (GridView) rootView.findViewById(R.id.Movie_grid);
         gridView.setAdapter(movieDetailsAdapter);
 
         return rootView;

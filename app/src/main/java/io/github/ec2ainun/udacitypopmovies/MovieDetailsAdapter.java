@@ -8,6 +8,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.List;
 
 public class MovieDetailsAdapter extends ArrayAdapter<MovieDetails> {
@@ -52,12 +54,12 @@ public class MovieDetailsAdapter extends ArrayAdapter<MovieDetails> {
                     R.layout.movie_item, parent, false);
         }
 
-        ImageView iconView = (ImageView) convertView.findViewById(R.id.flavor_image);
-        iconView.setImageResource(movieDetails.image);
+        String BaseURL = "http://image.tmdb.org/t/p/w185/";
+        ImageView iconView = (ImageView) convertView.findViewById(R.id.Movie_image);
+        Picasso.with(getContext()).load(BaseURL.concat(movieDetails.poster_path)).into(iconView);
 
-        TextView versionNameView = (TextView) convertView.findViewById(R.id.flavor_text);
-        versionNameView.setText(movieDetails.versionName
-            + " - " + movieDetails.versionNumber );
+        TextView title = (TextView) convertView.findViewById(R.id.Movie_title);
+        title.setText(movieDetails.title);
 
         return convertView;
     }
