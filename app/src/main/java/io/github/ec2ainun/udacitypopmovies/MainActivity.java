@@ -59,8 +59,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public class MovieQueryTask extends AsyncTask<URL, Void, String> {
-
-        // COMPLETED (26) Override onPreExecute to set the loading indicator to visible
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -111,6 +109,8 @@ public class MainActivity extends AppCompatActivity {
         MainActivityFragment send = new MainActivityFragment();
         send.setArguments(bundle);
         fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment, send);
+        fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
 
         /*movieDetailsAdapter.notifyDataSetChanged();*/

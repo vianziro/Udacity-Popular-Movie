@@ -2,7 +2,7 @@ package io.github.ec2ainun.udacitypopmovies;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,14 +18,14 @@ import java.util.Arrays;
  */
 public class MainActivityFragment extends Fragment {
 
-    private MovieDetailsAdapter movieDetailsAdapter;
+    private MovieDAdapter movieDetailsAdapter;
 
-    MovieDetails[] movieDetailses = {
+    /*MovieDetails[] movieDetailses = {
             new MovieDetails("beatuy", "good", "/9O7gLzmreU0nGkIB6K3BsJbzvNv.jpg", "5.6", "tes"),
             new MovieDetails("inter", "badd", "/9O7gLzmreU0nGkIB6K3BsJbzvNv.jpg", "9.0", "tes" ),
             new MovieDetails("Eblaclair", "yoo", "/9O7gLzmreU0nGkIB6K3BsJbzvNv.jpg", "8.8", "tes" ),
             new MovieDetails("tes", "yeah", "/9O7gLzmreU0nGkIB6K3BsJbzvNv.jpg", "9.0", "tes")
-    };
+    };*/
     ArrayList<MovieDetails> movieList;
 
     public MainActivityFragment() {
@@ -35,20 +35,23 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
         Bundle bundle=getArguments();
 
-        movieDetailsAdapter = new MovieDetailsAdapter(getActivity(), movieList);
-        if(bundle!=null){
+        movieDetailsAdapter = new MovieDAdapter(getActivity(), movieList);
+
+        if(bundle!=null && savedInstanceState==null){
             movieList = bundle.getParcelableArrayList("data");
-            Log.d("tes", movieList.toString());
-            movieDetailsAdapter.notifyDataSetChanged();
+            //Log.d("tes", movieList.toString());
+            for(MovieDetails data : movieList){
+                movieDetailsAdapter.add(data);
+                movieDetailsAdapter.notifyDataSetChanged();
+            }
+
         }
 
-
         // Get a reference to the ListView, and attach this adapter to it.
-        GridView gridView = (GridView) rootView.findViewById(R.id.Movie_grid);
 
+        GridView gridView = (GridView) rootView.findViewById(R.id.Movie_grid);
         gridView.setAdapter(movieDetailsAdapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -63,7 +66,6 @@ public class MainActivityFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), info.class);
                 intent.putExtras(data);
                 startActivity(intent);
-
             }
         });
 
@@ -80,7 +82,8 @@ public class MainActivityFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         if(savedInstanceState == null || !savedInstanceState.containsKey("data")) {
-            movieList = new ArrayList<MovieDetails>(Arrays.asList(movieDetailses));
+            //movieList = new ArrayList<MovieDetails>(Arrays.asList(movieDetailses));
+            movieList = new ArrayList<MovieDetails>();
         }
         else {
             movieList = savedInstanceState.getParcelableArrayList("data");
