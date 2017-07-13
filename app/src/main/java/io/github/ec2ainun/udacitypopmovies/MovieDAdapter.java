@@ -13,6 +13,9 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MovieDAdapter extends BaseAdapter {
     private final List<MovieDetails> Movie;
     private Activity context;
@@ -66,21 +69,32 @@ public class MovieDAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         MovieDetails movieDetails = this.getItem(position);
+        ViewHolder holder;
 
         LayoutInflater vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (convertView == null) {
+        if (convertView != null) {
+            holder = (ViewHolder) convertView.getTag();
+        }else{
             convertView = vi.inflate(R.layout.movie_item, null);
+            holder = new ViewHolder(convertView);
+            convertView.setTag(holder);
         }
-
-        ImageView iconView = (ImageView) convertView.findViewById(R.id.Movie_image);
-        TextView title = (TextView) convertView.findViewById(R.id.Movie_title);
 
         String BaseURL = "http://image.tmdb.org/t/p/w185/";
         String gambar  =BaseURL.concat(movieDetails.poster_path);
-        title.setText(movieDetails.title);
+        holder.title.setText(movieDetails.title);
 
-        Picasso.with(context).load(gambar).placeholder(R.drawable.placeholder).error(R.drawable.errorimg).into(iconView);
+        Picasso.with(context).load(gambar).placeholder(R.drawable.placeholder).error(R.drawable.errorimg).into(holder.image);
 
         return convertView;
+    }
+
+    static class ViewHolder {
+        @BindView(R.id.Movie_title) TextView title;
+        @BindView(R.id.Movie_image) ImageView image;
+
+        public ViewHolder(View view) {
+            ButterKnife.bind(this, view);
+        }
     }
 }

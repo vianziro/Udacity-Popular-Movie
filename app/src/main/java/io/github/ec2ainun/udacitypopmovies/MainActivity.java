@@ -19,6 +19,8 @@ import org.json.JSONObject;
 import java.net.URL;
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.github.ec2ainun.udacitypopmovies.utilities.AsynMovieQueryTask;
 import io.github.ec2ainun.udacitypopmovies.utilities.AsyncTaskCompleteListener;
 import io.github.ec2ainun.udacitypopmovies.utilities.NetworkUtils;
@@ -27,14 +29,13 @@ public class MainActivity extends AppCompatActivity {
 
     String TAG = "error";
     private ArrayList<MovieDetails> movieList;
-    GridView gridView;
+    @BindView(R.id.Movie_grid) GridView gridView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //butterKnife.bind(this);
-        gridView = (GridView)findViewById(R.id.Movie_grid);
+        ButterKnife.bind(this);
         getDataMovie("popular");
 
     }

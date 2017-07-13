@@ -11,26 +11,27 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class info extends AppCompatActivity {
 
-    TextView TVtitle, TVoverview, TVrelease_date, TVvote_average;
-    ImageView poster;
+    @BindView(R.id.title) TextView TVtitle;
+    @BindView(R.id.overview) TextView TVoverview;
+    @BindView(R.id.release) TextView TVrelease_date;
+    @BindView(R.id.vote) TextView TVvote_average;
+    @BindView(R.id.gambar) ImageView poster;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        TVtitle = (TextView) findViewById(R.id.title);
-        TVoverview = (TextView) findViewById(R.id.overview);
-        TVrelease_date = (TextView) findViewById(R.id.release);
-        TVvote_average = (TextView) findViewById(R.id.vote);
-        poster = (ImageView) findViewById(R.id.gambar);
+        ButterKnife.bind(this);
 
         MovieDetails movie = getIntent().getExtras().getParcelable("Movie");
         String BaseURL = "http://image.tmdb.org/t/p/w500/";
-        String images  =BaseURL.concat(movie.poster_path);
+        String images = BaseURL.concat(movie.poster_path);
 
         Picasso.with(this).load(images).placeholder(R.drawable.placeholder).error(R.drawable.errorimg).into(poster);
         TVtitle.setText(movie.title);
