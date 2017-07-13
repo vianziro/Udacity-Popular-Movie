@@ -5,7 +5,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -66,27 +65,21 @@ public class MovieDAdapter extends BaseAdapter {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // Gets the appropriate position
         MovieDetails movieDetails = this.getItem(position);
 
-        // Adapters recycle views to AdapterViews.
-        // If this is a new View object we're getting, then inflate the layout.
-        // If not, this view already has the layout inflated from a previous call to getView,
-        // and we modify the View widgets as usual.
         LayoutInflater vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         if (convertView == null) {
             convertView = vi.inflate(R.layout.movie_item, null);
-            /*convertView = LayoutInflater.from(getContext()).inflate(
-                    R.layout.movie_item, parent, false);*/
         }
 
-        String BaseURL = "http://image.tmdb.org/t/p/w185/";
         ImageView iconView = (ImageView) convertView.findViewById(R.id.Movie_image);
-        String gambar  =BaseURL.concat(movieDetails.poster_path);
-        Picasso.with(context).load(gambar).into(iconView);
-
         TextView title = (TextView) convertView.findViewById(R.id.Movie_title);
+
+        String BaseURL = "http://image.tmdb.org/t/p/w185/";
+        String gambar  =BaseURL.concat(movieDetails.poster_path);
         title.setText(movieDetails.title);
+
+        Picasso.with(context).load(gambar).placeholder(R.drawable.placeholder).error(R.drawable.errorimg).into(iconView);
 
         return convertView;
     }

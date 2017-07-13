@@ -1,11 +1,8 @@
 package io.github.ec2ainun.udacitypopmovies;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,39 +11,32 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 
+import io.github.ec2ainun.udacitypopmovies.utilities.AsynMovieQueryTask;
+import io.github.ec2ainun.udacitypopmovies.utilities.AsyncTaskCompleteListener;
 import io.github.ec2ainun.udacitypopmovies.utilities.NetworkUtils;
 
 public class MainActivity extends AppCompatActivity {
 
     String TAG = "error";
-    /*private MovieDetailsAdapter movieDetailsAdapter;
-    private ArrayList<MovieDetails> movieList;
-    MovieDetails[] movieDetailses;*/
-    /*private FragmentTransaction fragmentTransaction;
-    private FragmentManager fragmentManager;*/
     private ArrayList<MovieDetails> movieList;
     GridView gridView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_main);
+        setContentView(R.layout.activity_main);
+        //butterKnife.bind(this);
         gridView = (GridView)findViewById(R.id.Movie_grid);
         getDataMovie("popular");
-        //fragmentManager = this.getFragmentManager();
-        /*movieList = new  ArrayList<MovieDetails>(Arrays.asList(movieDetailses));
-        movieDetailsAdapter = new MovieDetailsAdapter(this, movieList);*/
+
     }
 
     private void getDataMovie(String data) {
@@ -59,39 +49,12 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "Failed to load meta-data, NameNotFound: " + e.getMessage());
         }
         URL Url = NetworkUtils.buildUrl(data, myApiKey);
-        new MovieQueryTask().execute(Url);
-    }
-
-    public class MovieQueryTask extends AsyncTask<URL, Void, String> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected String doInBackground(URL... params) {
-            URL searchUrl = params[0];
-            String SearchResults = null;
-            try {
-                SearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
-            } catch (IOException e) {
-                e.printStackTrace();
+        new AsynMovieQueryTask(this, new AsyncTaskCompleteListener<String>() {
+            @Override
+            public void onTaskComplete(String result) throws JSONException {
+                showJsonDataView(result);
             }
-            return SearchResults;
-        }
-
-        @Override
-        protected void onPostExecute(String SearchResults) {
-            if (SearchResults != null && !SearchResults.equals("")) {
-                try {
-                    showJsonDataView(SearchResults);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            } else {
-
-            }
-        }
+        }).execute(Url);
     }
 
     private void showJsonDataView(String SearchResults) throws JSONException {
@@ -100,46 +63,24 @@ public class MainActivity extends AppCompatActivity {
         movieList = new ArrayList<MovieDetails>();
         for (int i = 0; i < result.length(); ++i) {
             JSONObject hasil = result.getJSONObject(i);
-            String title = hasil.getString("title");
-            String overview = hasil.getString("overview");
-            String poster_path = hasil.getString("poster_path");
-            String vote_average = hasil.getString("vote_average");
-            String release_date = hasil.getString("release_date");
-            MovieDetails movie = new MovieDetails(title, overview, poster_path, vote_average, release_date);
+            MovieDetails movie = new MovieDetails(hasil.getString("title"), hasil.getString("overview"), hasil.getString("poster_path"), hasil.getString("vote_average"), hasil.getString("release_date"));
             movieList.add(movie);
         }
 
-        final MovieDetailsAdapter movieDetailsAdapter = new MovieDetailsAdapter(this, movieList);
+        final MovieDAdapter movieDetailsAdapter = new MovieDAdapter(this, movieList);
         gridView.setAdapter(movieDetailsAdapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 MovieDetails movie = movieDetailsAdapter.getItem(i);
                 Bundle data = new Bundle();
-                data.putString("title", movie.title);
-                data.putString("overview", movie.overview);
-                data.putString("poster_path", movie.poster_path);
-                data.putString("release_date", movie.release_date);
-                data.putString("vote_average", movie.vote_average);
+                data.putParcelable("Movie", movie);
                 Intent intent = new Intent(MainActivity.this, info.class);
                 intent.putExtras(data);
                 startActivity(intent);
             }
         });
 
-       /*//for fragment
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList("data", movieList);
-        // set Fragmentclass Arguments
-        MainActivityFragment send = new MainActivityFragment();
-        send.setArguments(bundle);
-        fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment, send);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
-
-        *//*movieDetailsAdapter.notifyDataSetChanged();*//*
-*/
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
