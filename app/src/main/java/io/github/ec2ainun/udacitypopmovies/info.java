@@ -22,6 +22,7 @@ public class info extends AppCompatActivity {
     @BindView(R.id.vote) TextView TVvote_average;
     @BindView(R.id.gambar) ImageView poster;
 
+    MovieDetails movie;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,15 +30,27 @@ public class info extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ButterKnife.bind(this);
 
-        MovieDetails movie = getIntent().getExtras().getParcelable("Movie");
-        String BaseURL = "http://image.tmdb.org/t/p/w500/";
-        String images = BaseURL.concat(movie.poster_path);
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
 
-        Picasso.with(this).load(images).placeholder(R.drawable.placeholder).error(R.drawable.errorimg).into(poster);
-        TVtitle.setText(movie.title);
-        TVvote_average.setText("("+movie.vote_average+")");
-        TVrelease_date.setText(movie.release_date);
-        TVoverview.setText(movie.overview);
+        if (extras != null) {
+            if (extras.containsKey("Movie")) {
+                movie = getIntent().getExtras().getParcelable("Movie");
+                String BaseURL = "http://image.tmdb.org/t/p/w500/";
+                String images = BaseURL.concat(movie.posterPath);
+                Picasso.with(this).load(images).placeholder(R.drawable.placeholder).error(R.drawable.errorimg).into(poster);
+                TVtitle.setText(movie.title);
+                TVvote_average.setText("("+movie.voteAverage+")");
+                TVrelease_date.setText(movie.releaseDate);
+                TVoverview.setText(movie.overview);
+            }
+        }else{
+            TVtitle.setText("null");
+            TVvote_average.setText("null");
+            TVrelease_date.setText("nul");
+            TVoverview.setText("null");
+        }
+
     }
 
     @Override

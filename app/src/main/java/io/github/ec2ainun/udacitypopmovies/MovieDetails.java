@@ -7,25 +7,24 @@ import android.os.Parcelable;
 public class MovieDetails implements Parcelable {
     String title;
     String overview;
-    String poster_path;
-    String vote_average;
-    String release_date;
+    String posterPath;
+    String voteAverage;
+    String releaseDate;
 
-    public MovieDetails(String title, String overview, String poster_path, String vote_average, String release_date)
-    {
+    public MovieDetails(String title, String overview, String posterPath, String voteAverage, String releaseDate){
         this.title = title;
         this.overview = overview;
-        this.poster_path = poster_path;
-        this.vote_average = vote_average;
-        this.release_date = release_date;
+        this.posterPath = posterPath;
+        this.voteAverage = voteAverage;
+        this.releaseDate = releaseDate;
     }
 
     protected MovieDetails(Parcel in) {
         title = in.readString();
         overview = in.readString();
-        poster_path = in.readString();
-        vote_average = in.readString();
-        release_date = in.readString();
+        posterPath = in.readString();
+        voteAverage = in.readString();
+        releaseDate = in.readString();
     }
 
     public static final Creator<MovieDetails> CREATOR = new Creator<MovieDetails>() {
@@ -49,8 +48,8 @@ public class MovieDetails implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(title);
         parcel.writeString(overview);
-        parcel.writeString(poster_path);
-        parcel.writeString(vote_average);
-        parcel.writeString(release_date);
+        parcel.writeString(posterPath);
+        parcel.writeString(voteAverage);
+        parcel.writeString(releaseDate);
     }
 }

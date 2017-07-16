@@ -81,8 +81,8 @@ public class MovieDAdapter extends BaseAdapter {
         }
 
         String BaseURL = "http://image.tmdb.org/t/p/w185/";
-        String gambar  =BaseURL.concat(movieDetails.poster_path);
-        holder.title.setText(movieDetails.title);
+        String gambar  =BaseURL.concat(movieDetails.posterPath);
+       // holder.title.setText(movieDetails.title);
 
         Picasso.with(context).load(gambar).placeholder(R.drawable.placeholder).error(R.drawable.errorimg).into(holder.image);
 
@@ -90,7 +90,7 @@ public class MovieDAdapter extends BaseAdapter {
     }
 
     static class ViewHolder {
-        @BindView(R.id.Movie_title) TextView title;
+       // @BindView(R.id.Movie_title) TextView title;
         @BindView(R.id.Movie_image) ImageView image;
 
         public ViewHolder(View view) {
