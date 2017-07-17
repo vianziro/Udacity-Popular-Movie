@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                 MovieDetails movie = movieDetailsAdapter.getItem(i);
                 Bundle data = new Bundle();
                 data.putParcelable("Movie", movie);
-                Intent intent = new Intent(MainActivity.this, info.class);
+                Intent intent = new Intent(MainActivity.this, InfoMovie.class);
                 intent.putExtras(data);
                 startActivity(intent);
             }
