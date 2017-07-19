@@ -1,5 +1,8 @@
 package io.github.ec2ainun.udacitypopmovies;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -12,12 +15,19 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -30,14 +40,49 @@ public class MainActivity extends AppCompatActivity {
     String TAG = "error";
     private ArrayList<MovieDetails> movieList;
     @BindView(R.id.Movie_grid) GridView gridView;
+    ProgressDialog pDialog;
+    private Activity context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        pDialog = new ProgressDialog(this);
+        context =this;
         getDataMovie("popular");
 
+    }
+
+    private void fetchImages(String endpoint) {
+        pDialog.setMessage("Downloading json...");
+        pDialog.show();
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
+                endpoint, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d(TAG, response.toString());
+                        try {
+                            showJsonDataView(response);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        pDialog.hide();
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e(TAG, "Error: " + error.getMessage());
+                        // hide the progress dialog
+                        pDialog.hide();
+                    }
+        });
+
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(request);
     }
 
     private void getDataMovie(String data) {
@@ -50,17 +95,18 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "Failed to load meta-data, NameNotFound: " + e.getMessage());
         }
         URL Url = NetworkUtils.buildUrl(data, myApiKey);
-        new AsynMovieQueryTask(this, new AsyncTaskCompleteListener<String>() {
+        /*new AsynMovieQueryTask(this, new AsyncTaskCompleteListener<String>() {
             @Override
             public void onTaskComplete(String result) throws JSONException {
                 showJsonDataView(result);
             }
-        }).execute(Url);
+        }).execute(Url);*/
+        fetchImages(Url.toString());
     }
 
-    private void showJsonDataView(String SearchResults) throws JSONException {
-        JSONObject data = new JSONObject(SearchResults);
-        JSONArray result = data.getJSONArray("results");
+    private void showJsonDataView(JSONObject SearchResults) throws JSONException {
+        //JSONObject data = new JSONObject(SearchResults);
+        JSONArray result = SearchResults.getJSONArray("results");
         movieList = new ArrayList<MovieDetails>();
         for (int i = 0; i < result.length(); ++i) {
             JSONObject hasil = result.getJSONObject(i);

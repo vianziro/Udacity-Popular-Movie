@@ -9,6 +9,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -84,7 +86,11 @@ public class MovieDAdapter extends BaseAdapter {
         String gambar  =BaseURL.concat(movieDetails.posterPath);
        // holder.title.setText(movieDetails.title);
 
-        Picasso.with(context).load(gambar).placeholder(R.drawable.placeholder).error(R.drawable.errorimg).into(holder.image);
+        //Picasso.with(context).load(gambar).placeholder(R.drawable.placeholder).error(R.drawable.errorimg).into(holder.image);
+        Glide.with(context).load(gambar)
+                .thumbnail(0.25f)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(holder.image);
 
         return convertView;
     }

@@ -14,6 +14,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
@@ -55,8 +57,16 @@ public class InfoMovie extends AppCompatActivity {
                 movie = getIntent().getExtras().getParcelable("Movie");
                 String BaseURL = "http://image.tmdb.org/t/p/w500/";
                 String images = BaseURL.concat(movie.posterPath);
-                Picasso.with(this).load(images).placeholder(R.drawable.placeholder).error(R.drawable.errorimg).into(poster);
-                Picasso.with(this).load(images).placeholder(R.drawable.placeholder).error(R.drawable.errorimg).into(bgHeader);
+                //Picasso.with(this).load(images).placeholder(R.drawable.placeholder).error(R.drawable.errorimg).into(poster);
+                //Picasso.with(this).load(images).placeholder(R.drawable.placeholder).error(R.drawable.errorimg).into(bgHeader);
+                Glide.with(this).load(images)
+                        .thumbnail(0.25f)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(poster);
+                Glide.with(this).load(images)
+                        .thumbnail(0.25f)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(bgHeader);
                 TVtitle.setText(movie.title);
                 TVvote_average.setText("("+movie.voteAverage+")");
                 TVrelease_date.setText(movie.releaseDate);
