@@ -41,8 +41,9 @@ public class InfoMovie extends AppCompatActivity {
         setContentView(R.layout.activity_info);
         ButterKnife.bind(this);
 
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.MyToolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setHomeAsUpIndicator(android.R.drawable.ic_menu_revert);
+        //getSupportActionBar().setHomeAsUpIndicator(android.R.drawable.ic_menu_revert);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
@@ -50,7 +51,7 @@ public class InfoMovie extends AppCompatActivity {
         collapsingToolbar.setCollapsedTitleTextColor(ContextCompat.getColor(this, R.color.colorWhite));
         collapsingToolbar.setExpandedTitleColor(ContextCompat.getColor(this, R.color.colorWhite));
         collapsingToolbar.setContentScrimColor(ContextCompat.getColor(this, R.color.colorPrimary));
-        collapsingToolbar.setTitle("Movie Details");
+
 
         if (extras != null) {
             if (extras.containsKey("Movie")) {
@@ -71,6 +72,7 @@ public class InfoMovie extends AppCompatActivity {
                 TVvote_average.setText("("+movie.voteAverage+")");
                 TVrelease_date.setText(movie.releaseDate);
                 TVoverview.setText(movie.overview);
+                collapsingToolbar.setTitle(movie.title);
             }
         }else{
             TVtitle.setText("null");

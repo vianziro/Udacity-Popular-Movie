@@ -8,6 +8,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,15 +43,41 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.Movie_grid) GridView gridView;
     ProgressDialog pDialog;
     private Activity context;
+    private static final String LIFECYCLE_CALLBACKS_TEXT_KEY = "callbacks";
+    private String saved;
+
+    public String getSaved() {
+        return saved;
+    }
+
+    public void setSaved(String saved) {
+        this.saved = saved;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         pDialog = new ProgressDialog(this);
         context =this;
-        getDataMovie("popular");
+
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(LIFECYCLE_CALLBACKS_TEXT_KEY)) {
+                String PreviousLifecycleCallbacks = savedInstanceState
+                        .getString(LIFECYCLE_CALLBACKS_TEXT_KEY);
+                getDataMovie(PreviousLifecycleCallbacks);
+                this.setSaved(PreviousLifecycleCallbacks);
+            }
+        }else{
+            getDataMovie("popular");
+            this.setSaved("popular");
+        }
+
 
     }
 
@@ -140,12 +167,21 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.action_popular) {
             getDataMovie("popular");
+            this.setSaved("popular");
             return true;
         }
         if (id == R.id.action_rated) {
             getDataMovie("top_rated");
+            this.setSaved("top_rated");
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        String lifecycleTextContents = this.getSaved();
+        outState.putString(LIFECYCLE_CALLBACKS_TEXT_KEY, lifecycleTextContents);
     }
 }
