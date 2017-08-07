@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -36,7 +38,7 @@ import io.github.ec2ainun.udacitypopmovies.utilities.AsynMovieQueryTask;
 import io.github.ec2ainun.udacitypopmovies.utilities.AsyncTaskCompleteListener;
 import io.github.ec2ainun.udacitypopmovies.utilities.NetworkUtils;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
 
     String TAG = "error";
     private ArrayList<MovieDetails> movieList;
@@ -65,6 +67,10 @@ public class MainActivity extends AppCompatActivity {
 
         pDialog = new ProgressDialog(this);
         context =this;
+
+        /*
+         * Initialize the loader
+         */
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(LIFECYCLE_CALLBACKS_TEXT_KEY)) {
@@ -128,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 showJsonDataView(result);
             }
         }).execute(Url);*/
+
         fetchImages(Url.toString());
     }
 
@@ -137,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         movieList = new ArrayList<MovieDetails>();
         for (int i = 0; i < result.length(); ++i) {
             JSONObject hasil = result.getJSONObject(i);
-            MovieDetails movie = new MovieDetails(hasil.getString("title"), hasil.getString("overview"), hasil.getString("poster_path"), hasil.getString("vote_average"), hasil.getString("release_date"));
+            MovieDetails movie = new MovieDetails(hasil.getString("id"), hasil.getString("title"), hasil.getString("overview"), hasil.getString("poster_path"), hasil.getString("vote_average"), hasil.getString("release_date"));
             movieList.add(movie);
         }
 
@@ -184,4 +191,5 @@ public class MainActivity extends AppCompatActivity {
         String lifecycleTextContents = this.getSaved();
         outState.putString(LIFECYCLE_CALLBACKS_TEXT_KEY, lifecycleTextContents);
     }
+
 }

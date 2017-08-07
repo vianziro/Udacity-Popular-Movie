@@ -57,19 +57,19 @@ public class InfoMovie extends AppCompatActivity {
             if (extras.containsKey("Movie")) {
                 movie = getIntent().getExtras().getParcelable("Movie");
                 String BaseURL = "http://image.tmdb.org/t/p/w500/";
+                String BaseURL2 = "http://image.tmdb.org/t/p/w185/";
                 String images = BaseURL.concat(movie.posterPath);
+                String images2 = BaseURL2.concat(movie.posterPath);
                 //Picasso.with(this).load(images).placeholder(R.drawable.placeholder).error(R.drawable.errorimg).into(poster);
                 //Picasso.with(this).load(images).placeholder(R.drawable.placeholder).error(R.drawable.errorimg).into(bgHeader);
-                Glide.with(this).load(images)
-                        .thumbnail(0.25f)
+                Glide.with(this).load(images2)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(poster);
                 Glide.with(this).load(images)
-                        .thumbnail(0.25f)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(bgHeader);
                 TVtitle.setText(movie.title);
-                TVvote_average.setText("("+movie.voteAverage+")");
+                TVvote_average.setText(movie.voteAverage+"/10");
                 TVrelease_date.setText(movie.releaseDate);
                 TVoverview.setText(movie.overview);
                 collapsingToolbar.setTitle(movie.title);
@@ -81,7 +81,7 @@ public class InfoMovie extends AppCompatActivity {
             TVoverview.setText("null");
         }
 
-        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+       /* appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
                 if (verticalOffset == 0) {
@@ -97,7 +97,7 @@ public class InfoMovie extends AppCompatActivity {
 
                 }
             }
-        });
+        });*/
 
 
     }

@@ -4,5 +4,7 @@
     <dimen name="margin10">10dp</dimen>
     <dimen name="padding10">10dp</dimen>
     <dimen name="margin25">25dp</dimen>
+    <dimen name="text25">25sp</dimen>
+    <dimen name="image100">100dp</dimen>
     <dimen name="detail_info_height">256dp</dimen>
 </resources>
