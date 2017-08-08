@@ -1,9 +1,12 @@
 <resources>
     <string name="app_name">UPop Movies</string>
-    <string name="popular">Sort by most popular</string>
-    <string name="rated">Sort by top rated</string>
+    <string name="popular">Sort by Most Popular</string>
+    <string name="rated">Sort by Top Rated</string>
+    <string name="favorite">Sort by Favourite</string>
     <string name="api_key">YOUR_API_KEY</string>
     <string name="fav">Mark As Favorite</string>
+    <string name="Review">Review</string>
+    <string name="Trailer">Trailer</string>
 
 
     <!-- testing Design  -->

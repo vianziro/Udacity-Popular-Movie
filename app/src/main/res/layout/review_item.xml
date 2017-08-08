@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:focusable="true"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:clickable="true"
+    android:background="?android:attr/selectableItemBackground"
+    android:orientation="vertical"
+    tools:context="io.github.ec2ainun.udacitypopmovies.InfoMovie">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/reviewAuthor"
+            android:textStyle="bold"
+            android:layout_margin="@dimen/margin10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="@string/lorem_ipsum"/>
+        <TextView
+            android:textAlignment="center"
+            android:id="@+id/reviewContent"
+            android:layout_margin="@dimen/margin10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="@string/lorem_ipsum"/>
+    </LinearLayout>
+
+
+</RelativeLayout>

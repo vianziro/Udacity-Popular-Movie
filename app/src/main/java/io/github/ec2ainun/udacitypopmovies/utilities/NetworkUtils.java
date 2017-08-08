@@ -52,8 +52,35 @@ public class NetworkUtils {
                     .appendQueryParameter(PARAM_QUERY, API)
                     .build();
         }
-        else{
+        else {
             builtUri =Uri.parse(TOP_BASE_URL).buildUpon()
+                    .appendQueryParameter(PARAM_QUERY, API)
+                    .build();
+        }
+
+        URL url = null;
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        return url;
+    }
+    public static URL buildUrlId(String SearchQuery, String API, String id) {
+        Uri builtUri;
+
+        String BaseURL = "http://api.themoviedb.org/3/movie/";
+        if(SearchQuery.equals("videos")){
+            String video = BaseURL.concat(id).concat("/videos");
+            builtUri =Uri.parse(video).buildUpon()
+                    .appendQueryParameter(PARAM_QUERY, API)
+                    .build();
+
+        }
+        else{
+            String reviews = BaseURL.concat(id).concat("/reviews");
+            builtUri =Uri.parse(reviews).buildUpon()
                     .appendQueryParameter(PARAM_QUERY, API)
                     .build();
         }
