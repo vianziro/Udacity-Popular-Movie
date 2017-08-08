@@ -2,18 +2,25 @@ package io.github.ec2ainun.udacitypopmovies;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -21,7 +28,6 @@ import android.widget.GridView;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.json.JSONArray;
@@ -30,23 +36,28 @@ import org.json.JSONObject;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.github.ec2ainun.udacitypopmovies.utilities.AsynMovieQueryTask;
-import io.github.ec2ainun.udacitypopmovies.utilities.AsyncTaskCompleteListener;
+import butterknife.OnItemClick;
+import io.github.ec2ainun.udacitypopmovies.data.MovieContract;
 import io.github.ec2ainun.udacitypopmovies.utilities.NetworkUtils;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity implements
+        LoaderManager.LoaderCallbacks<Cursor> {
 
-    String TAG = "error";
+    String error = "error";
     private ArrayList<MovieDetails> movieList;
+    // Member variables for the adapter and RecyclerView
+    private CustomCursorAdapter mAdapter;
     @BindView(R.id.Movie_grid) GridView gridView;
+    @BindView(R.id.Movie_recycle) RecyclerView recyclerView;
     ProgressDialog pDialog;
     private Activity context;
     private static final String LIFECYCLE_CALLBACKS_TEXT_KEY = "callbacks";
     private String saved;
+    private static final String TAGthis = MainActivity.class.getSimpleName();
+    private static final int MOVIE_LOADER_ID = 0;
 
     public String getSaved() {
         return saved;
@@ -67,11 +78,9 @@ public class MainActivity extends AppCompatActivity{
 
         pDialog = new ProgressDialog(this);
         context =this;
+        mAdapter = new CustomCursorAdapter(this);
 
-        /*
-         * Initialize the loader
-         */
-
+        recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(),2));
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(LIFECYCLE_CALLBACKS_TEXT_KEY)) {
                 String PreviousLifecycleCallbacks = savedInstanceState
@@ -83,9 +92,18 @@ public class MainActivity extends AppCompatActivity{
             getDataMovie("popular");
             this.setSaved("popular");
         }
+        getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
 
 
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // re-queries for all tasks
+        getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
+    }
+
 
     private void fetchImages(String endpoint) {
         pDialog.setMessage("Downloading json...");
@@ -96,7 +114,7 @@ public class MainActivity extends AppCompatActivity{
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.d(TAG, response.toString());
+                        Log.d(error, response.toString());
                         try {
                             showJsonDataView(response);
                         } catch (JSONException e) {
@@ -107,7 +125,7 @@ public class MainActivity extends AppCompatActivity{
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.e(TAG, "Error: " + error.getMessage());
+                        Log.e(MainActivity.this.error, "Error: " + error.getMessage());
                         // hide the progress dialog
                         pDialog.hide();
                     }
@@ -125,15 +143,9 @@ public class MainActivity extends AppCompatActivity{
             Bundle bundle = ai.metaData;
             myApiKey = bundle.getString("MY_API_KEY");
         } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Failed to load meta-data, NameNotFound: " + e.getMessage());
+            Log.e(error, "Failed to load meta-data, NameNotFound: " + e.getMessage());
         }
         URL Url = NetworkUtils.buildUrl(data, myApiKey);
-        /*new AsynMovieQueryTask(this, new AsyncTaskCompleteListener<String>() {
-            @Override
-            public void onTaskComplete(String result) throws JSONException {
-                showJsonDataView(result);
-            }
-        }).execute(Url);*/
 
         fetchImages(Url.toString());
     }
@@ -173,16 +185,42 @@ public class MainActivity extends AppCompatActivity{
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_popular) {
+            recyclerView.setVisibility(View.GONE);
+            gridView.setVisibility(View.VISIBLE);
             getDataMovie("popular");
             this.setSaved("popular");
             return true;
         }
         if (id == R.id.action_rated) {
+            recyclerView.setVisibility(View.GONE);
+            gridView.setVisibility(View.VISIBLE);
             getDataMovie("top_rated");
             this.setSaved("top_rated");
             return true;
         }
+        if(id == R.id.action_fav){
+            gridView.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+            getDataFav();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void getDataFav() {
+        recyclerView.setAdapter(mAdapter);
+        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), recyclerView, new RecyclerTouchListener.ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                //MovieReview review = movieReviews.get(position);
+
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        }));
     }
 
     @Override
@@ -192,4 +230,63 @@ public class MainActivity extends AppCompatActivity{
         outState.putString(LIFECYCLE_CALLBACKS_TEXT_KEY, lifecycleTextContents);
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new AsyncTaskLoader<Cursor>(this) {
+
+            // Initialize a Cursor, this will hold all the task data
+            Cursor mMovieData = null;
+
+            // onStartLoading() is called when a loader first starts loading data
+            @Override
+            protected void onStartLoading() {
+                if (mMovieData != null) {
+                    // Delivers any previously loaded data immediately
+                    deliverResult(mMovieData);
+                } else {
+                    // Force a new load
+                    forceLoad();
+                }
+            }
+
+            // loadInBackground() performs asynchronous loading of data
+            @Override
+            public Cursor loadInBackground() {
+                // Will implement to load data
+
+                // Query and load all task data in the background; sort by priority
+                // [Hint] use a try/catch block to catch any errors in loading data
+
+                try {
+                    return getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                            null,
+                            null,
+                            null,
+                            null);
+
+                } catch (Exception e) {
+                    Log.e(TAGthis, "Failed to asynchronously load data.");
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            // deliverResult sends the result of the load, a Cursor, to the registered listener
+            public void deliverResult(Cursor data) {
+                mMovieData = data;
+                super.deliverResult(data);
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mAdapter.swapCursor(data);
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mAdapter.swapCursor(null);
+    }
 }

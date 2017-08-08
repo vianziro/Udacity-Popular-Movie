@@ -1,8 +1,11 @@
 package io.github.ec2ainun.udacitypopmovies;
 
+import android.content.ActivityNotFoundException;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.NavUtils;
@@ -18,7 +21,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,7 +32,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +42,7 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.github.ec2ainun.udacitypopmovies.data.MovieContract;
 import io.github.ec2ainun.udacitypopmovies.utilities.NetworkUtils;
 
 public class InfoMovie extends AppCompatActivity {
@@ -49,7 +52,7 @@ public class InfoMovie extends AppCompatActivity {
     @BindView(R.id.release) TextView TVrelease_date;
     @BindView(R.id.vote) TextView TVvote_average;
     @BindView(R.id.gambar) ImageView poster;
-
+    @BindView(R.id.makeFav) Button makeFav;
     @BindView(R.id.MyToolbar) Toolbar toolbar;
     @BindView(R.id.MyAppbar) AppBarLayout appBarLayout;
     @BindView(R.id.bgheader) ImageView bgHeader;
@@ -76,6 +79,8 @@ public class InfoMovie extends AppCompatActivity {
         collapsingToolbar.setCollapsedTitleTextColor(ContextCompat.getColor(this, R.color.colorWhite));
         collapsingToolbar.setExpandedTitleColor(ContextCompat.getColor(this, R.color.colorWhite));
         collapsingToolbar.setContentScrimColor(ContextCompat.getColor(this, R.color.colorPrimary));
+
+
 
 
         if (extras != null) {
@@ -110,6 +115,31 @@ public class InfoMovie extends AppCompatActivity {
                 TVrelease_date.setText(movie.releaseDate);
                 TVoverview.setText(movie.overview);
                 collapsingToolbar.setTitle(movie.title);
+
+                makeFav.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // Insert new task data via a ContentResolver
+                        // Create new empty ContentValues object
+                        ContentValues contentValues = new ContentValues();
+                        // Put the task description and selected mPriority into the ContentValues
+                        contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIEID, movie.movieID);
+                        contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIEOVERVIEW, movie.overview);
+                        contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIETITLE, movie.title);
+                        contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIEPOSTERPATH, movie.posterPath);
+                        contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIEVOTEAVERAGE, movie.voteAverage);
+                        contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIERELEASEDATE, movie.releaseDate);
+
+                        // Insert the content values via a ContentResolver
+                        Uri uri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
+
+                        // Display the URI that's returned with a Toast
+                        // [Hint] Don't forget to call finish() to return to MainActivity after this insert is complete
+                        if(uri != null) {
+                            Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
             }
         }else{
             TVtitle.setText("null");
@@ -131,12 +161,9 @@ public class InfoMovie extends AppCompatActivity {
                     // Not collapsed
                     poster.setVisibility(View.VISIBLE);
                     TVoverview.setVisibility(View.GONE);
-
                 }
             }
         });*/
-
-
     }
 
     @Override
@@ -238,8 +265,8 @@ public class InfoMovie extends AppCompatActivity {
         recyclerViewTrailer.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), recyclerViewTrailer, new RecyclerTouchListener.ClickListener() {
             @Override
             public void onClick(View view, int position) {
-                MovieTrailer review = movieTrailers.get(position);
-                Toast.makeText(getApplicationContext(), review.trailerName + " is selected!", Toast.LENGTH_SHORT).show();
+                MovieTrailer trailer = movieTrailers.get(position);
+                watchYoutubeVideo(trailer.trailerKey);
             }
 
             @Override
@@ -274,7 +301,7 @@ public class InfoMovie extends AppCompatActivity {
             @Override
             public void onClick(View view, int position) {
                 MovieReview review = movieReviews.get(position);
-                Toast.makeText(getApplicationContext(), review.reviewAuthor + " is selected!", Toast.LENGTH_SHORT).show();
+                viewReview(review.reviewUrl);
             }
 
             @Override
@@ -282,7 +309,20 @@ public class InfoMovie extends AppCompatActivity {
 
             }
         }));
+    }
 
-
+    public void watchYoutubeVideo(String id){
+        Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + id));
+        Intent webIntent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse("http://www.youtube.com/watch?v=" + id));
+        try {
+            startActivity(appIntent);
+        } catch (ActivityNotFoundException ex) {
+            startActivity(webIntent);
+        }
+    }
+    public void viewReview(String url){
+        Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(webIntent);
     }
 }

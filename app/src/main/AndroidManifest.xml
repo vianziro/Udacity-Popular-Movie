@@ -29,6 +29,11 @@
                 android:value=".MainActivity" />
         </activity>
 
+        <provider
+            android:name="io.github.ec2ainun.udacitypopmovies.data.MovieContentProvider"
+            android:authorities="io.github.ec2ainun.udacitypopmovies"
+            android:exported="false"/>
+
         <meta-data
             android:name="MY_API_KEY"
             android:value="@string/api_key" />
