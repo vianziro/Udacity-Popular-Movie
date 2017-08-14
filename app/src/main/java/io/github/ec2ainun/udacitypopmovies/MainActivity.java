@@ -5,8 +5,10 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -24,6 +26,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -44,25 +47,25 @@ import io.github.ec2ainun.udacitypopmovies.data.MovieContract;
 import io.github.ec2ainun.udacitypopmovies.utilities.NetworkUtils;
 
 public class MainActivity extends AppCompatActivity implements
-        LoaderManager.LoaderCallbacks<Cursor> {
+        LoaderManager.LoaderCallbacks<Cursor>,CustomCursorAdapter.ListItemClickListener, MovieListAdapter.ListItemClickListener {
 
-    String error = "error";
     private ArrayList<MovieDetails> movieList;
-    // Member variables for the adapter and RecyclerView
     private CustomCursorAdapter mAdapter;
-    @BindView(R.id.Movie_grid) GridView gridView;
     @BindView(R.id.Movie_recycle) RecyclerView recyclerView;
     ProgressDialog pDialog;
     private Activity context;
-    private static final String LIFECYCLE_CALLBACKS_TEXT_KEY = "callbacks";
     private String saved;
+    //static
     private static final String TAGthis = MainActivity.class.getSimpleName();
+    private static final String LIFECYCLE_CALLBACKS_TEXT_KEY = "callbacks";
+    private static final String SAVED_LAYOUT_MANAGER = "scroll";
     private static final int MOVIE_LOADER_ID = 0;
+    private static final String error = "error";
 
+    Parcelable mListState;
     public String getSaved() {
         return saved;
     }
-
     public void setSaved(String saved) {
         this.saved = saved;
     }
@@ -77,32 +80,65 @@ public class MainActivity extends AppCompatActivity implements
         setSupportActionBar(toolbar);
 
         pDialog = new ProgressDialog(this);
-        context =this;
-        mAdapter = new CustomCursorAdapter(this);
-
-        recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(),2));
+        context = this;
+        mAdapter = new CustomCursorAdapter(context,this);
+        recyclerView.setHasFixedSize(true);
+        if(this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+            recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        }
+        else{
+            recyclerView.setLayoutManager(new GridLayoutManager(this, 4));
+        }
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(LIFECYCLE_CALLBACKS_TEXT_KEY)) {
                 String PreviousLifecycleCallbacks = savedInstanceState
                         .getString(LIFECYCLE_CALLBACKS_TEXT_KEY);
-                getDataMovie(PreviousLifecycleCallbacks);
+                if(PreviousLifecycleCallbacks == "fav"){
+                    getDataFav();
+                }else{
+                    getDataMovie(PreviousLifecycleCallbacks);
+                }
                 this.setSaved(PreviousLifecycleCallbacks);
             }
+
         }else{
             getDataMovie("popular");
             this.setSaved("popular");
         }
         getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
-
-
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        String lifecycleTextContents = this.getSaved();
+        mListState = recyclerView.getLayoutManager().onSaveInstanceState();
+        outState.putString(LIFECYCLE_CALLBACKS_TEXT_KEY, lifecycleTextContents);
+        outState.putParcelable(SAVED_LAYOUT_MANAGER, mListState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if(savedInstanceState != null){
+            mListState = savedInstanceState.getParcelable(SAVED_LAYOUT_MANAGER);
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-
         // re-queries for all tasks
-        getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
+        if (getSupportLoaderManager() != null) {
+            getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
+        } else {
+            getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
+        }
+        if (mListState != null) {
+            recyclerView.getLayoutManager().onRestoreInstanceState(mListState);
+        }
     }
+
 
 
     private void fetchImages(String endpoint) {
@@ -131,7 +167,6 @@ public class MainActivity extends AppCompatActivity implements
                     }
         });
 
-
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(request);
     }
@@ -151,7 +186,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void showJsonDataView(JSONObject SearchResults) throws JSONException {
-        //JSONObject data = new JSONObject(SearchResults);
         JSONArray result = SearchResults.getJSONArray("results");
         movieList = new ArrayList<MovieDetails>();
         for (int i = 0; i < result.length(); ++i) {
@@ -159,21 +193,8 @@ public class MainActivity extends AppCompatActivity implements
             MovieDetails movie = new MovieDetails(hasil.getString("id"), hasil.getString("title"), hasil.getString("overview"), hasil.getString("poster_path"), hasil.getString("vote_average"), hasil.getString("release_date"));
             movieList.add(movie);
         }
-
-        final MovieDAdapter movieDetailsAdapter = new MovieDAdapter(this, movieList);
-        gridView.setAdapter(movieDetailsAdapter);
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                MovieDetails movie = movieDetailsAdapter.getItem(i);
-                Bundle data = new Bundle();
-                data.putParcelable("Movie", movie);
-                Intent intent = new Intent(MainActivity.this, InfoMovie.class);
-                intent.putExtras(data);
-                startActivity(intent);
-            }
-        });
-
+        final MovieListAdapter movieDetailsAdapter = new MovieListAdapter(context, movieList,this);
+        recyclerView.setAdapter(movieDetailsAdapter);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -185,23 +206,18 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_popular) {
-            recyclerView.setVisibility(View.GONE);
-            gridView.setVisibility(View.VISIBLE);
             getDataMovie("popular");
             this.setSaved("popular");
             return true;
         }
         if (id == R.id.action_rated) {
-            recyclerView.setVisibility(View.GONE);
-            gridView.setVisibility(View.VISIBLE);
             getDataMovie("top_rated");
             this.setSaved("top_rated");
             return true;
         }
         if(id == R.id.action_fav){
-            gridView.setVisibility(View.GONE);
-            recyclerView.setVisibility(View.VISIBLE);
             getDataFav();
+            this.setSaved("fav");
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -209,26 +225,10 @@ public class MainActivity extends AppCompatActivity implements
 
     private void getDataFav() {
         recyclerView.setAdapter(mAdapter);
-        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), recyclerView, new RecyclerTouchListener.ClickListener() {
-            @Override
-            public void onClick(View view, int position) {
-                //MovieReview review = movieReviews.get(position);
 
-            }
-
-            @Override
-            public void onLongClick(View view, int position) {
-
-            }
-        }));
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        String lifecycleTextContents = this.getSaved();
-        outState.putString(LIFECYCLE_CALLBACKS_TEXT_KEY, lifecycleTextContents);
-    }
+
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -256,7 +256,6 @@ public class MainActivity extends AppCompatActivity implements
 
                 // Query and load all task data in the background; sort by priority
                 // [Hint] use a try/catch block to catch any errors in loading data
-
                 try {
                     return getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
                             null,
@@ -288,5 +287,45 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mAdapter.swapCursor(null);
+    }
+
+
+    @Override
+    public void onListDBItemClick(View view, int clickedItemIndex) {
+        int id = (int) view.getTag();
+        // Build appropriate uri with String row id appended
+        String stringId = Integer.toString(id);
+        Uri uri = MovieContract.MovieEntry.CONTENT_URI;
+        uri = uri.buildUpon().appendPath(stringId).build();
+
+        Cursor datadb =getContentResolver().query(uri,
+                null,
+                null,
+                null,
+                null);
+
+        MovieDetails movie = new MovieDetails(datadb.getString(1),
+                datadb.getString(2),
+                datadb.getString(3),
+                datadb.getString(4),
+                datadb.getString(5),
+                datadb.getString(6));
+
+        Bundle data = new Bundle();
+        data.putParcelable("Movie", movie);
+        Intent intent = new Intent(MainActivity.this, InfoMovie.class);
+        intent.putExtras(data);
+        startActivity(intent);
+
+    }
+
+    @Override
+    public void onListReqItemClick(View view, int clickedItemIndex) {
+        MovieDetails movie = movieList.get(clickedItemIndex);
+        Bundle data = new Bundle();
+        data.putParcelable("Movie", movie);
+        Intent intent = new Intent(MainActivity.this, InfoMovie.class);
+        intent.putExtras(data);
+        startActivity(intent);
     }
 }

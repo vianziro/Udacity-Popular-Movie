@@ -19,7 +19,7 @@
             app:layout_scrollFlags="scroll|enterAlways|snap" />
 
     </android.support.design.widget.AppBarLayout>
-    <GridView
+    <!--<GridView
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
@@ -32,7 +32,7 @@
         tools:context=".MainActivity"
         android:id="@+id/Movie_grid"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
-    </GridView>
+    </GridView>-->
     <android.support.v7.widget.RecyclerView
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"

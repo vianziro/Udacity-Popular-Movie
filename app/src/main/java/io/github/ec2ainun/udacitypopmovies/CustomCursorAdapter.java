@@ -18,8 +18,6 @@ package io.github.ec2ainun.udacitypopmovies;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.drawable.GradientDrawable;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,36 +38,37 @@ import io.github.ec2ainun.udacitypopmovies.data.MovieContract;
  */
 public class CustomCursorAdapter extends RecyclerView.Adapter<CustomCursorAdapter.MovieViewHolder> {
 
-    // Class variables for the Cursor that holds task data and the Context
     private Cursor mCursor;
     private Context mContext;
+    final private ListItemClickListener mOnClickListener;
+    public interface ListItemClickListener {
+        void onListDBItemClick(View view, int clickedItemIndex);
+    }
 
+    public CustomCursorAdapter(Context mContext, ListItemClickListener listener) {
 
-    /**
-     * Constructor for the CustomCursorAdapter that initializes the Context.
-     *
-     * @param mContext the current Context
-     */
-    public CustomCursorAdapter(Context mContext) {
+        mOnClickListener = listener;
         this.mContext = mContext;
     }
 
-
-    /**
-     * Called when ViewHolders are created to fill a RecyclerView.
-     *
-     * @return A new MovieViewHolder that holds the view for each task
-     */
     @Override
     public MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        // Inflate the task_layout to a view
-        View view = LayoutInflater.from(mContext)
+        /*View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.movie_item, parent, false);
 
-        return new MovieViewHolder(view);
-    }
+        return new MovieViewHolder(view);*/
 
+        Context context = parent.getContext();
+        int layoutIdForListItem = R.layout.movie_item;
+        LayoutInflater inflater = LayoutInflater.from(context);
+        boolean shouldAttachToParentImmediately = false;
+
+        View view = inflater.inflate(layoutIdForListItem, parent, shouldAttachToParentImmediately);
+        MovieViewHolder viewHolder = new MovieViewHolder(view);
+
+        return viewHolder;
+    }
 
     /**
      * Called by the RecyclerView to display data at a specified position in the Cursor.
@@ -140,7 +139,7 @@ public class CustomCursorAdapter extends RecyclerView.Adapter<CustomCursorAdapte
 
 
     // Inner class for creating ViewHolders
-    class MovieViewHolder extends RecyclerView.ViewHolder {
+    class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         // Class variables for the task description and priority TextViews
         @BindView(R.id.Movie_image) ImageView image;
@@ -152,6 +151,13 @@ public class CustomCursorAdapter extends RecyclerView.Adapter<CustomCursorAdapte
         public MovieViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            int clickedPosition = getAdapterPosition();
+            mOnClickListener.onListDBItemClick(v,clickedPosition);
         }
     }
 }

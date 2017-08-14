@@ -26,6 +26,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
+import static android.provider.BaseColumns._ID;
+import static io.github.ec2ainun.udacitypopmovies.data.MovieContract.MovieEntry.COLUMN_MOVIEID;
+import static io.github.ec2ainun.udacitypopmovies.data.MovieContract.MovieEntry.COLUMN_MOVIEOVERVIEW;
+import static io.github.ec2ainun.udacitypopmovies.data.MovieContract.MovieEntry.COLUMN_MOVIEPOSTERPATH;
+import static io.github.ec2ainun.udacitypopmovies.data.MovieContract.MovieEntry.COLUMN_MOVIERELEASEDATE;
+import static io.github.ec2ainun.udacitypopmovies.data.MovieContract.MovieEntry.COLUMN_MOVIETITLE;
+import static io.github.ec2ainun.udacitypopmovies.data.MovieContract.MovieEntry.COLUMN_MOVIEVOTEAVERAGE;
 import static io.github.ec2ainun.udacitypopmovies.data.MovieContract.MovieEntry.TABLE_NAME;
 
 // Verify that MovieContentProvider extends from ContentProvider and implements required methods
@@ -113,6 +120,30 @@ public class MovieContentProvider extends ContentProvider {
         // Return constructed uri (this points to the newly inserted row of data)
         return returnUri;
     }
+    public String getEmployeeName(String empNo) {
+        Cursor cursor = null;
+        final SQLiteDatabase db = mMovieDbHelper.getReadableDatabase();
+        String empName = "";
+        /*Cursor cursor = db.query(TABLE_CONTACTS, new String[] { KEY_ID,
+                        KEY_NAME, KEY_PH_NO }, KEY_ID + "=?",
+                new String[] { String.valueOf(id) }, null, null, null, null);
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        Contact contact = new Contact(Integer.parseInt(cursor.getString(0)),
+                cursor.getString(1), cursor.getString(2));
+        // return contact*/
+        try {
+            cursor = db.rawQuery("SELECT EmployeeName FROM Employee WHERE EmpNo=?", new String[] {empNo + ""});
+            if(cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                empName = cursor.getString(cursor.getColumnIndex("EmployeeName"));
+            }
+            return empName;
+        }finally {
+            cursor.close();
+        }
+    }
 
 
     // Implement query to handle requests for data by URI
@@ -139,6 +170,23 @@ public class MovieContentProvider extends ContentProvider {
                         null,
                         sortOrder);
                 break;
+            case MOVIE_WITH_ID:
+                String id = uri.getPathSegments().get(1);
+                // Use selections/selectionArgs to filter for this ID
+                retCursor = db.query(TABLE_NAME,
+                        new String[] { _ID,
+                                COLUMN_MOVIEID,
+                                COLUMN_MOVIETITLE,
+                                COLUMN_MOVIEOVERVIEW,
+                                COLUMN_MOVIEPOSTERPATH,
+                                COLUMN_MOVIEVOTEAVERAGE,
+                                COLUMN_MOVIERELEASEDATE
+                        }, _ID + "=?",
+                        new String[] { String.valueOf(id) }, null, null, null, null);
+                if (retCursor != null)
+                    retCursor.moveToFirst();
+                break;
+
             // Default exception
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);

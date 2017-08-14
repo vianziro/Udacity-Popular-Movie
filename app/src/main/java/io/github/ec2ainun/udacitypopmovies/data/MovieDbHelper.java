@@ -30,6 +30,17 @@ public class MovieDbHelper extends SQLiteOpenHelper {
 
     // If you change the database schema, you must increment the database version
     private static final int VERSION = 1;
+    private static final String DATABASE_CREATE_MOVIE ="CREATE TABLE "  + MovieEntry.TABLE_NAME + " (" +
+            MovieEntry._ID                + " INTEGER PRIMARY KEY, " +
+            MovieEntry.COLUMN_MOVIEID + " TEXT NOT NULL, " +
+            MovieEntry.COLUMN_MOVIETITLE + " TEXT NOT NULL, " +
+            MovieEntry.COLUMN_MOVIEOVERVIEW + " TEXT NOT NULL, " +
+            MovieEntry.COLUMN_MOVIEPOSTERPATH + " TEXT NOT NULL, " +
+            MovieEntry.COLUMN_MOVIERELEASEDATE + " TEXT NOT NULL, " +
+            MovieEntry.COLUMN_MOVIEVOTEAVERAGE + " TEXT NOT NULL);";
+
+    private static final String DATABASE_ALTER_MOVIE_1 = "ALTER TABLE "
+            + MovieEntry.TABLE_NAME + " ADD COLUMN " + MovieEntry.COLUMN_MOVIEVOTEAVERAGE + " TEXT;";
 
 
     // Constructor
@@ -43,18 +54,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase db) {
-
-        // Create tasks table (careful to follow SQL formatting rules)
-        final String CREATE_TABLE = "CREATE TABLE "  + MovieEntry.TABLE_NAME + " (" +
-                        MovieEntry._ID                + " INTEGER PRIMARY KEY, " +
-                        MovieEntry.COLUMN_MOVIEID + " TEXT NOT NULL, " +
-                        MovieEntry.COLUMN_MOVIETITLE + " TEXT NOT NULL, " +
-                        MovieEntry.COLUMN_MOVIEOVERVIEW + " TEXT NOT NULL, " +
-                        MovieEntry.COLUMN_MOVIEPOSTERPATH + " TEXT NOT NULL, " +
-                        MovieEntry.COLUMN_MOVIERELEASEDATE + " TEXT NOT NULL, " +
-                        MovieEntry.COLUMN_MOVIEVOTEAVERAGE + " TEXT NOT NULL);";
-
-        db.execSQL(CREATE_TABLE);
+        db.execSQL(DATABASE_CREATE_MOVIE);
     }
 
 
@@ -64,7 +64,8 @@ public class MovieDbHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + MovieEntry.TABLE_NAME);
-        onCreate(db);
+        if (oldVersion > 1) {
+            db.execSQL(DATABASE_ALTER_MOVIE_1);
+        }
     }
 }
