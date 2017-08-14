@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -53,6 +54,7 @@ public class InfoMovie extends AppCompatActivity {
     @BindView(R.id.vote) TextView TVvote_average;
     @BindView(R.id.gambar) ImageView poster;
     @BindView(R.id.makeFav) Button makeFav;
+    @BindView(R.id.makeUnFav) Button makeUnFav;
     @BindView(R.id.MyToolbar) Toolbar toolbar;
     @BindView(R.id.MyAppbar) AppBarLayout appBarLayout;
     @BindView(R.id.bgheader) ImageView bgHeader;
@@ -79,9 +81,6 @@ public class InfoMovie extends AppCompatActivity {
         collapsingToolbar.setCollapsedTitleTextColor(ContextCompat.getColor(this, R.color.colorWhite));
         collapsingToolbar.setExpandedTitleColor(ContextCompat.getColor(this, R.color.colorWhite));
         collapsingToolbar.setContentScrimColor(ContextCompat.getColor(this, R.color.colorPrimary));
-
-
-
 
         if (extras != null) {
             if (extras.containsKey("Movie")) {
@@ -116,6 +115,26 @@ public class InfoMovie extends AppCompatActivity {
                 TVoverview.setText(movie.overview);
                 collapsingToolbar.setTitle(movie.title);
 
+                if(movie.isFav.equals("1")){
+                    makeFav.setVisibility(View.GONE);
+                    makeUnFav.setVisibility(View.VISIBLE);
+                }else{
+                    makeFav.setVisibility(View.VISIBLE);
+                    makeUnFav.setVisibility(View.GONE);
+                }
+
+                Cursor datadb = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                        null,
+                        MovieContract.MovieEntry.COLUMN_MOVIEID + " = ?",
+                        new String[]{movie.movieID},
+                        null);
+
+                if (datadb.moveToFirst()){
+                    //cursor is empty
+                    makeFav.setVisibility(View.GONE);
+                    makeUnFav.setVisibility(View.VISIBLE);
+                }
+
                 makeFav.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -129,15 +148,22 @@ public class InfoMovie extends AppCompatActivity {
                         contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIEPOSTERPATH, movie.posterPath);
                         contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIEVOTEAVERAGE, movie.voteAverage);
                         contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIERELEASEDATE, movie.releaseDate);
+                        contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIEFAV, "1");
 
                         // Insert the content values via a ContentResolver
-                        Uri uri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
-
-                        // Display the URI that's returned with a Toast
-                        // [Hint] Don't forget to call finish() to return to MainActivity after this insert is complete
-                        if(uri != null) {
-                            Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_LONG).show();
-                        }
+                        getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
+                        makeFav.setVisibility(View.GONE);
+                        makeUnFav.setVisibility(View.VISIBLE);
+                    }
+                });
+                makeUnFav.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,
+                                MovieContract.MovieEntry.COLUMN_MOVIEID + " = ?",
+                                new String[]{movie.movieID});
+                        makeFav.setVisibility(View.VISIBLE);
+                        makeUnFav.setVisibility(View.GONE);
                     }
                 });
             }
@@ -147,23 +173,6 @@ public class InfoMovie extends AppCompatActivity {
             TVrelease_date.setText("nul");
             TVoverview.setText("null");
         }
-
-       /* appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                if (verticalOffset == 0) {
-                    // Collapsed
-                    poster.setVisibility(View.GONE);
-                    TVoverview.setVisibility(View.VISIBLE);
-
-                }
-                else {
-                    // Not collapsed
-                    poster.setVisibility(View.VISIBLE);
-                    TVoverview.setVisibility(View.GONE);
-                }
-            }
-        });*/
     }
 
     @Override

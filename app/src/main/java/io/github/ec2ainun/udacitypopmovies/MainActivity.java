@@ -55,13 +55,19 @@ public class MainActivity extends AppCompatActivity implements
     ProgressDialog pDialog;
     private Activity context;
     private String saved;
+    private int positionIndex;
+    private int topView;
     //static
     private static final String TAGthis = MainActivity.class.getSimpleName();
     private static final String LIFECYCLE_CALLBACKS_TEXT_KEY = "callbacks";
     private static final String SAVED_LAYOUT_MANAGER = "scroll";
     private static final int MOVIE_LOADER_ID = 0;
     private static final String error = "error";
+    private static final String LIFECYCLE_CALLBACKS_POSITION = "positionIndex";
+    private static final String LIFECYCLE_CALLBACKS_TOPVIEW = "topView";
 
+
+    GridLayoutManager gridLayoutManager;
     Parcelable mListState;
     public String getSaved() {
         return saved;
@@ -85,9 +91,11 @@ public class MainActivity extends AppCompatActivity implements
         recyclerView.setHasFixedSize(true);
         if(this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
             recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+            restoreLayoutManagerPosition();
         }
         else{
             recyclerView.setLayoutManager(new GridLayoutManager(this, 4));
+            restoreLayoutManagerPosition();
         }
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(LIFECYCLE_CALLBACKS_TEXT_KEY)) {
@@ -115,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements
         mListState = recyclerView.getLayoutManager().onSaveInstanceState();
         outState.putString(LIFECYCLE_CALLBACKS_TEXT_KEY, lifecycleTextContents);
         outState.putParcelable(SAVED_LAYOUT_MANAGER, mListState);
+
     }
 
     @Override
@@ -124,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements
             mListState = savedInstanceState.getParcelable(SAVED_LAYOUT_MANAGER);
         }
     }
+
 
     @Override
     protected void onResume() {
@@ -137,8 +147,13 @@ public class MainActivity extends AppCompatActivity implements
         if (mListState != null) {
             recyclerView.getLayoutManager().onRestoreInstanceState(mListState);
         }
-    }
 
+    }
+    private void restoreLayoutManagerPosition() {
+        if (mListState != null) {
+            recyclerView.getLayoutManager().onRestoreInstanceState(mListState);
+        }
+    }
 
 
     private void fetchImages(String endpoint) {
@@ -190,12 +205,15 @@ public class MainActivity extends AppCompatActivity implements
         movieList = new ArrayList<MovieDetails>();
         for (int i = 0; i < result.length(); ++i) {
             JSONObject hasil = result.getJSONObject(i);
-            MovieDetails movie = new MovieDetails(hasil.getString("id"), hasil.getString("title"), hasil.getString("overview"), hasil.getString("poster_path"), hasil.getString("vote_average"), hasil.getString("release_date"));
+            MovieDetails movie = new MovieDetails(hasil.getString("id"), hasil.getString("title"), hasil.getString("overview"), hasil.getString("poster_path"), hasil.getString("vote_average"), hasil.getString("release_date"), "0");
             movieList.add(movie);
         }
         final MovieListAdapter movieDetailsAdapter = new MovieListAdapter(context, movieList,this);
+
         recyclerView.setAdapter(movieDetailsAdapter);
     }
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -227,8 +245,6 @@ public class MainActivity extends AppCompatActivity implements
         recyclerView.setAdapter(mAdapter);
 
     }
-
-
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -304,12 +320,20 @@ public class MainActivity extends AppCompatActivity implements
                 null,
                 null);
 
+        String Fav="0";
+        if(datadb.getString(7)==null||datadb.getString(7).equals("1")){
+            Fav="1";
+        }else{
+            Fav="0";
+        }
+
         MovieDetails movie = new MovieDetails(datadb.getString(1),
                 datadb.getString(2),
                 datadb.getString(3),
                 datadb.getString(4),
                 datadb.getString(5),
-                datadb.getString(6));
+                datadb.getString(6),
+                Fav);
 
         Bundle data = new Bundle();
         data.putParcelable("Movie", movie);

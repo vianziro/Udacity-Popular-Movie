@@ -27,6 +27,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import static android.provider.BaseColumns._ID;
+import static io.github.ec2ainun.udacitypopmovies.data.MovieContract.MovieEntry.COLUMN_MOVIEFAV;
 import static io.github.ec2ainun.udacitypopmovies.data.MovieContract.MovieEntry.COLUMN_MOVIEID;
 import static io.github.ec2ainun.udacitypopmovies.data.MovieContract.MovieEntry.COLUMN_MOVIEOVERVIEW;
 import static io.github.ec2ainun.udacitypopmovies.data.MovieContract.MovieEntry.COLUMN_MOVIEPOSTERPATH;
@@ -120,30 +121,6 @@ public class MovieContentProvider extends ContentProvider {
         // Return constructed uri (this points to the newly inserted row of data)
         return returnUri;
     }
-    public String getEmployeeName(String empNo) {
-        Cursor cursor = null;
-        final SQLiteDatabase db = mMovieDbHelper.getReadableDatabase();
-        String empName = "";
-        /*Cursor cursor = db.query(TABLE_CONTACTS, new String[] { KEY_ID,
-                        KEY_NAME, KEY_PH_NO }, KEY_ID + "=?",
-                new String[] { String.valueOf(id) }, null, null, null, null);
-        if (cursor != null)
-            cursor.moveToFirst();
-
-        Contact contact = new Contact(Integer.parseInt(cursor.getString(0)),
-                cursor.getString(1), cursor.getString(2));
-        // return contact*/
-        try {
-            cursor = db.rawQuery("SELECT EmployeeName FROM Employee WHERE EmpNo=?", new String[] {empNo + ""});
-            if(cursor.getCount() > 0) {
-                cursor.moveToFirst();
-                empName = cursor.getString(cursor.getColumnIndex("EmployeeName"));
-            }
-            return empName;
-        }finally {
-            cursor.close();
-        }
-    }
 
 
     // Implement query to handle requests for data by URI
@@ -180,7 +157,8 @@ public class MovieContentProvider extends ContentProvider {
                                 COLUMN_MOVIEOVERVIEW,
                                 COLUMN_MOVIEPOSTERPATH,
                                 COLUMN_MOVIEVOTEAVERAGE,
-                                COLUMN_MOVIERELEASEDATE
+                                COLUMN_MOVIERELEASEDATE,
+                                COLUMN_MOVIEFAV
                         }, _ID + "=?",
                         new String[] { String.valueOf(id) }, null, null, null, null);
                 if (retCursor != null)
@@ -215,6 +193,12 @@ public class MovieContentProvider extends ContentProvider {
         // [Hint] Use selections to delete an item by its row ID
         switch (match) {
             // Handle the single item case, recognized by the ID included in the URI path
+            case MOVIES:
+                moviesDeleted =  db.delete(TABLE_NAME,
+                        selection,
+                        selectionArgs
+                        );
+                break;
             case MOVIE_WITH_ID:
                 // Get the task ID from the URI path
                 String id = uri.getPathSegments().get(1);

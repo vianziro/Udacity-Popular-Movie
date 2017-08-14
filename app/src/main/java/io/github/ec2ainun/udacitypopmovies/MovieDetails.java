@@ -11,14 +11,16 @@ public class MovieDetails implements Parcelable {
     String posterPath;
     String voteAverage;
     String releaseDate;
+    String isFav;
 
-    public MovieDetails(String movieID, String title, String overview, String posterPath, String voteAverage, String releaseDate){
+    public MovieDetails(String movieID, String title, String overview, String posterPath, String voteAverage, String releaseDate, String isFav){
         this.movieID = movieID;
         this.title = title;
         this.overview = overview;
         this.posterPath = posterPath;
         this.voteAverage = voteAverage;
         this.releaseDate = releaseDate;
+        this.isFav = isFav;
     }
 
     protected MovieDetails(Parcel in) {
@@ -28,6 +30,7 @@ public class MovieDetails implements Parcelable {
         posterPath = in.readString();
         voteAverage = in.readString();
         releaseDate = in.readString();
+        isFav = in.readString();
     }
 
     public static final Creator<MovieDetails> CREATOR = new Creator<MovieDetails>() {
@@ -55,5 +58,6 @@ public class MovieDetails implements Parcelable {
         parcel.writeString(posterPath);
         parcel.writeString(voteAverage);
         parcel.writeString(releaseDate);
+        parcel.writeString(isFav);
     }
 }

@@ -5,6 +5,7 @@
     <string name="favorite">Show Favourite</string>
     <string name="api_key">YOUR_API_KEY</string>
     <string name="fav">Mark As Favorite</string>
+    <string name="unfav">Mark As Un-Favorite</string>
     <string name="Review">Review</string>
     <string name="Trailer">Trailer</string>
 

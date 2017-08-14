@@ -60,6 +60,7 @@ public class MovieContract {
         public static final String COLUMN_MOVIEPOSTERPATH = "posterPath";
         public static final String COLUMN_MOVIEVOTEAVERAGE = "voteAverage";
         public static final String COLUMN_MOVIERELEASEDATE = "releaseDate";
+        public static final String COLUMN_MOVIEFAV = "favMovie";
 
         /*
         The above table structure looks something like the sample table below.

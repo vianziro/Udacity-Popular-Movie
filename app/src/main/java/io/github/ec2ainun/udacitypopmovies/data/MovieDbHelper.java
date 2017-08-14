@@ -29,7 +29,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "moviesDb.db";
 
     // If you change the database schema, you must increment the database version
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
     private static final String DATABASE_CREATE_MOVIE ="CREATE TABLE "  + MovieEntry.TABLE_NAME + " (" +
             MovieEntry._ID                + " INTEGER PRIMARY KEY, " +
             MovieEntry.COLUMN_MOVIEID + " TEXT NOT NULL, " +
@@ -40,7 +40,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
             MovieEntry.COLUMN_MOVIEVOTEAVERAGE + " TEXT NOT NULL);";
 
     private static final String DATABASE_ALTER_MOVIE_1 = "ALTER TABLE "
-            + MovieEntry.TABLE_NAME + " ADD COLUMN " + MovieEntry.COLUMN_MOVIEVOTEAVERAGE + " TEXT;";
+            + MovieEntry.TABLE_NAME + " ADD COLUMN " + MovieEntry.COLUMN_MOVIEFAV + " TEXT;";
 
 
     // Constructor
@@ -64,7 +64,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion > 1) {
+        if (oldVersion < 2) {
             db.execSQL(DATABASE_ALTER_MOVIE_1);
         }
     }
