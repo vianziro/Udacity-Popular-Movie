@@ -65,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements
     private static final String error = "error";
     private static final String LIFECYCLE_CALLBACKS_POSITION = "positionIndex";
     private static final String LIFECYCLE_CALLBACKS_TOPVIEW = "topView";
+    public static int scrollX = 0;
+    public static int scrollY = -1;
 
 
     GridLayoutManager gridLayoutManager;
@@ -123,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements
         mListState = recyclerView.getLayoutManager().onSaveInstanceState();
         outState.putString(LIFECYCLE_CALLBACKS_TEXT_KEY, lifecycleTextContents);
         outState.putParcelable(SAVED_LAYOUT_MANAGER, mListState);
+        outState.putIntArray("SCROLL_POSITION",
+                new int[]{ recyclerView.getScrollX(), recyclerView.getScrollY()});
 
     }
 
@@ -132,6 +136,13 @@ public class MainActivity extends AppCompatActivity implements
         if(savedInstanceState != null){
             mListState = savedInstanceState.getParcelable(SAVED_LAYOUT_MANAGER);
         }
+        final int[] position = savedInstanceState.getIntArray("SCROLL_POSITION");
+        if(position != null)
+            recyclerView.post(new Runnable() {
+                public void run() {
+                    recyclerView.scrollTo(position[0], position[1]);
+                }
+            });
     }
 
 
@@ -147,8 +158,21 @@ public class MainActivity extends AppCompatActivity implements
         if (mListState != null) {
             recyclerView.getLayoutManager().onRestoreInstanceState(mListState);
         }
-
+        recyclerView.post(new Runnable() {
+            @Override
+            public void run() {
+                recyclerView.scrollTo(scrollX, scrollY);
+            }
+        });
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        scrollX = recyclerView.getScrollX();
+        scrollY = recyclerView.getScrollY();
+    }
+
     private void restoreLayoutManagerPosition() {
         if (mListState != null) {
             recyclerView.getLayoutManager().onRestoreInstanceState(mListState);
