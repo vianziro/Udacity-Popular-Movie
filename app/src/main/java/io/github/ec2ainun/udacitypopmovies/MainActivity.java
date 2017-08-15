@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -55,22 +56,15 @@ public class MainActivity extends AppCompatActivity implements
     ProgressDialog pDialog;
     private Activity context;
     private String saved;
-    private int positionIndex;
-    private int topView;
+
     //static
     private static final String TAGthis = MainActivity.class.getSimpleName();
     private static final String LIFECYCLE_CALLBACKS_TEXT_KEY = "callbacks";
     private static final String SAVED_LAYOUT_MANAGER = "scroll";
     private static final int MOVIE_LOADER_ID = 0;
     private static final String error = "error";
-    private static final String LIFECYCLE_CALLBACKS_POSITION = "positionIndex";
-    private static final String LIFECYCLE_CALLBACKS_TOPVIEW = "topView";
-    public static int scrollX = 0;
-    public static int scrollY = -1;
+    private Parcelable mListState = null;
 
-
-    GridLayoutManager gridLayoutManager;
-    Parcelable mListState;
     public String getSaved() {
         return saved;
     }
@@ -91,14 +85,31 @@ public class MainActivity extends AppCompatActivity implements
         context = this;
         mAdapter = new CustomCursorAdapter(context,this);
         recyclerView.setHasFixedSize(true);
+        getDataMovie("popular");
+        this.setSaved("popular");
+
         if(this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
-            recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-            restoreLayoutManagerPosition();
+            recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         }
         else{
-            recyclerView.setLayoutManager(new GridLayoutManager(this, 4));
-            restoreLayoutManagerPosition();
+            recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         }
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(LIFECYCLE_CALLBACKS_TEXT_KEY, this.getSaved());
+        mListState = recyclerView.getLayoutManager().onSaveInstanceState();
+        outState.putParcelable(SAVED_LAYOUT_MANAGER, mListState);
+
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(LIFECYCLE_CALLBACKS_TEXT_KEY)) {
                 String PreviousLifecycleCallbacks = savedInstanceState
@@ -110,41 +121,12 @@ public class MainActivity extends AppCompatActivity implements
                 }
                 this.setSaved(PreviousLifecycleCallbacks);
             }
-
-        }else{
-            getDataMovie("popular");
-            this.setSaved("popular");
         }
-        getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
-    }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        String lifecycleTextContents = this.getSaved();
-        mListState = recyclerView.getLayoutManager().onSaveInstanceState();
-        outState.putString(LIFECYCLE_CALLBACKS_TEXT_KEY, lifecycleTextContents);
-        outState.putParcelable(SAVED_LAYOUT_MANAGER, mListState);
-        outState.putIntArray("SCROLL_POSITION",
-                new int[]{ recyclerView.getScrollX(), recyclerView.getScrollY()});
-
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
         if(savedInstanceState != null){
             mListState = savedInstanceState.getParcelable(SAVED_LAYOUT_MANAGER);
         }
-        final int[] position = savedInstanceState.getIntArray("SCROLL_POSITION");
-        if(position != null)
-            recyclerView.post(new Runnable() {
-                public void run() {
-                    recyclerView.scrollTo(position[0], position[1]);
-                }
-            });
     }
-
 
     @Override
     protected void onResume() {
@@ -158,27 +140,12 @@ public class MainActivity extends AppCompatActivity implements
         if (mListState != null) {
             recyclerView.getLayoutManager().onRestoreInstanceState(mListState);
         }
-        recyclerView.post(new Runnable() {
-            @Override
-            public void run() {
-                recyclerView.scrollTo(scrollX, scrollY);
-            }
-        });
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        scrollX = recyclerView.getScrollX();
-        scrollY = recyclerView.getScrollY();
     }
-
-    private void restoreLayoutManagerPosition() {
-        if (mListState != null) {
-            recyclerView.getLayoutManager().onRestoreInstanceState(mListState);
-        }
-    }
-
 
     private void fetchImages(String endpoint) {
         pDialog.setMessage("Downloading json...");
@@ -237,6 +204,10 @@ public class MainActivity extends AppCompatActivity implements
         recyclerView.setAdapter(movieDetailsAdapter);
     }
 
+    private void getDataFav() {
+        recyclerView.setAdapter(mAdapter);
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -263,11 +234,6 @@ public class MainActivity extends AppCompatActivity implements
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void getDataFav() {
-        recyclerView.setAdapter(mAdapter);
-
     }
 
     @Override
@@ -321,14 +287,13 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mAdapter.swapCursor(data);
-
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mAdapter.swapCursor(null);
     }
-
 
     @Override
     public void onListDBItemClick(View view, int clickedItemIndex) {

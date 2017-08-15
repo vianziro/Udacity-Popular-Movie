@@ -7,11 +7,13 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Parcelable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -23,9 +25,9 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -53,14 +55,19 @@ public class InfoMovie extends AppCompatActivity {
     @BindView(R.id.release) TextView TVrelease_date;
     @BindView(R.id.vote) TextView TVvote_average;
     @BindView(R.id.gambar) ImageView poster;
-    @BindView(R.id.makeFav) Button makeFav;
-    @BindView(R.id.makeUnFav) Button makeUnFav;
+    @BindView(R.id.makeFav) ImageView makeFav;
+    @BindView(R.id.makeUnFav) ImageView makeUnFav;
     @BindView(R.id.MyToolbar) Toolbar toolbar;
     @BindView(R.id.MyAppbar) AppBarLayout appBarLayout;
     @BindView(R.id.bgheader) ImageView bgHeader;
     @BindView(R.id.collapse_toolbar) CollapsingToolbarLayout collapsingToolbar;
     @BindView(R.id.recycler_view_trailer) RecyclerView recyclerViewTrailer;
     @BindView(R.id.recycler_view_review) RecyclerView recyclerViewReview;
+    @BindView(R.id.scrollView) NestedScrollView scrollView;
+
+    public static int scrollX = 0;
+    public static int scrollY = -1;
+    private static final String SAVED_LAYOUT_MANAGER = "scroll";
     String TAG = "error";
     MovieDetails movie;
     ArrayList<MovieReview> movieReviews;
@@ -75,6 +82,7 @@ public class InfoMovie extends AppCompatActivity {
         setSupportActionBar(toolbar);
         //getSupportActionBar().setHomeAsUpIndicator(android.R.drawable.ic_menu_revert);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
@@ -116,11 +124,12 @@ public class InfoMovie extends AppCompatActivity {
                 collapsingToolbar.setTitle(movie.title);
 
                 if(movie.isFav.equals("1")){
-                    makeFav.setVisibility(View.GONE);
-                    makeUnFav.setVisibility(View.VISIBLE);
-                }else{
+
                     makeFav.setVisibility(View.VISIBLE);
                     makeUnFav.setVisibility(View.GONE);
+                }else{
+                    makeFav.setVisibility(View.GONE);
+                    makeUnFav.setVisibility(View.VISIBLE);
                 }
 
                 Cursor datadb = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
@@ -130,9 +139,9 @@ public class InfoMovie extends AppCompatActivity {
                         null);
 
                 if (datadb.moveToFirst()){
-                    //cursor is empty
-                    makeFav.setVisibility(View.GONE);
-                    makeUnFav.setVisibility(View.VISIBLE);
+                    //cursor is not empty
+                    makeFav.setVisibility(View.VISIBLE);
+                    makeUnFav.setVisibility(View.GONE);
                 }
 
                 makeFav.setOnClickListener(new View.OnClickListener() {
@@ -173,6 +182,41 @@ public class InfoMovie extends AppCompatActivity {
             TVrelease_date.setText("nul");
             TVoverview.setText("null");
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putIntArray(SAVED_LAYOUT_MANAGER,
+                new int[]{ scrollView.getScrollX(), scrollView.getScrollY()});
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        final int[] position = savedInstanceState.getIntArray(SAVED_LAYOUT_MANAGER);
+        if(position != null){
+            this.scrollX = position[0];
+            this.scrollY = position[1];
+            scrollView.post(new Runnable() {
+                public void run() {
+                    scrollView.scrollTo(position[0], position[1]);
+                }
+            });
+        }
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        scrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                scrollView.scrollTo(scrollX, scrollY);
+            }
+        });
     }
 
     @Override
@@ -330,6 +374,7 @@ public class InfoMovie extends AppCompatActivity {
             startActivity(webIntent);
         }
     }
+
     public void viewReview(String url){
         Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(webIntent);
