@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements
             recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         }
         else{
-            recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+            recyclerView.setLayoutManager(new GridLayoutManager(this, 4));
         }
 
     }
@@ -103,7 +103,6 @@ public class MainActivity extends AppCompatActivity implements
         outState.putString(LIFECYCLE_CALLBACKS_TEXT_KEY, this.getSaved());
         mListState = recyclerView.getLayoutManager().onSaveInstanceState();
         outState.putParcelable(SAVED_LAYOUT_MANAGER, mListState);
-
 
     }
 

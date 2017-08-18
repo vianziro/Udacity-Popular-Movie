@@ -83,7 +83,6 @@ public class InfoMovie extends AppCompatActivity {
         //getSupportActionBar().setHomeAsUpIndicator(android.R.drawable.ic_menu_revert);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         collapsingToolbar.setCollapsedTitleTextColor(ContextCompat.getColor(this, R.color.colorWhite));
@@ -124,12 +123,11 @@ public class InfoMovie extends AppCompatActivity {
                 collapsingToolbar.setTitle(movie.title);
 
                 if(movie.isFav.equals("1")){
-
-                    makeFav.setVisibility(View.VISIBLE);
-                    makeUnFav.setVisibility(View.GONE);
-                }else{
-                    makeFav.setVisibility(View.GONE);
                     makeUnFav.setVisibility(View.VISIBLE);
+                    makeFav.setVisibility(View.GONE);
+                }else{
+                    makeUnFav.setVisibility(View.GONE);
+                    makeFav.setVisibility(View.VISIBLE);
                 }
 
                 Cursor datadb = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
@@ -140,8 +138,8 @@ public class InfoMovie extends AppCompatActivity {
 
                 if (datadb.moveToFirst()){
                     //cursor is not empty
-                    makeFav.setVisibility(View.VISIBLE);
-                    makeUnFav.setVisibility(View.GONE);
+                    makeUnFav.setVisibility(View.VISIBLE);
+                    makeFav.setVisibility(View.GONE);
                 }
 
                 makeFav.setOnClickListener(new View.OnClickListener() {
